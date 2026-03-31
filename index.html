@@ -444,10 +444,23 @@
         function setupUI() { if(currentUser) { document.getElementById('authBox').classList.add('hidden'); document.getElementById('userBox').classList.remove('hidden'); document.getElementById('userDisplay').innerText = `Hello, ${currentUser.name}`; } }
         
         function genFilters() {
-            const g = ["Action", "Adventure", "Comedy", "Drama", "Fantasy", "Horror", "Mystery", "Romance", "Sci-Fi", "Slice of Life", "Sports", "Supernatural", "Thriller"];
-            document.getElementById('genreList').innerHTML = g.map(x => `<button onclick="fetchByFilter('${x}')" class="genre-btn">${x}</button>`).join('');
-            let yH = ''; for(let y=2026; y>=2000; y--) yH += `<button onclick="fetchByFilter('', ${y})" class="genre-btn">${y}</button>`;
-            document.getElementById('yearList').innerHTML = yH;
+    // Define genres
+    const genres = [
+        "Action", "Adventure", "Comedy", "Drama", "Fantasy", "Horror",
+        "Mystery", "Romance", "Sci-Fi", "Sports", "Supernatural", "Thriller", "Psychological"
+    ];
+
+    // Populate genre list
+    document.getElementById('genreList').innerHTML = genres.map(x => 
+        `<button onclick="fetchByFilter('${x}', null)" class="genre-btn">${x}</button>`
+    ).join('');
+
+    // Generate years from 2026 down to 2000
+    let yearsHTML = '';
+    for (let y = 2026; y >= 2000; y--) {
+        yearsHTML += `<button onclick="fetchByFilter('', ${y})" class="genre-btn">${y}</button>`;
+    }
+    document.getElementById('yearList').innerHTML = yearsHTML;
         }
 
         function clearHistory() { document.getElementById('confirmOverlay').style.display = 'flex'; }
