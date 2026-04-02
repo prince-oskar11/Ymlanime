@@ -1,126 +1,113 @@
 const API = "https://api.jikan.moe/v4";
-let wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
+const STREAM_API = "https://api.consumet.org/anime/gogoanime";
 
-async function fetchAnime(endpoint) {
-  const res = await fetch(API + endpoint);
-  const data = await res.json();
-  return data.data;
+let currentEpisode = 1;
+let currentAnimeId = null;
+let currentEpisodesList = [];
+
+// 🎬 HERO BANNER
+async function loadHero() {
+  const res = await fetch(API + "/top/anime");
+  const data = (await res.json()).data[0];
+
+  document.getElementById("hero").style.backgroundImage =
+    `url(${data.images.jpg.large_image_url})`;
+
+  document.getElementById("heroTitle").innerText = data.title;
 }
 
-function createCard(anime) {
+// 🎞️ NETFLIX ROW
+async function loadRow(title, endpoint) {
+  const res = await fetch(API + endpoint);
+  const data = (await res.json()).data;
+
+  const row = document.createElement("div");
+  row.innerHTML = `
+    <h2>${title}</h2>
+    <div class="row">
+      ${data.map(a => card(a)).join("")}
+    </div>
+  `;
+  document.getElementById("content").appendChild(row);
+}
+
+// 🎴 CARD UI
+function card(a) {
   return `
-  <div class="card" onclick="openDetails(${anime.mal_id})">
-    <img src="${anime.images.jpg.image_url}">
-    <div class="overlay ep">${anime.episodes || "?"}</div>
-    <div class="overlay age">${anime.rating || "?"}</div>
-    <div class="overlay rate">${anime.score || "?"}</div>
+  <div class="card" onclick="openAnime('${a.title}')">
+    <img src="${a.images.jpg.image_url}">
+    <div class="info">
+      <span>${a.score || "?"}</span>
+    </div>
   </div>`;
 }
 
-async function goHome() {
-  const anime = await fetchAnime("/top/anime");
-  renderList(anime);
+// 🎥 OPEN ANIME → LOAD EPISODES
+async function openAnime(title) {
+  const res = await fetch(`${STREAM_API}/${encodeURIComponent(title)}`);
+  const data = await res.json();
+
+  currentAnimeId = data.results[0].id;
+
+  const epRes = await fetch(`${STREAM_API}/info/${currentAnimeId}`);
+  const epData = await epRes.json();
+
+  currentEpisodesList = epData.episodes;
+
+  renderEpisodes(epData);
 }
 
-function renderList(list) {
-  document.getElementById("content").innerHTML =
-    list.map(createCard).join("");
-}
-
-async function openDetails(id) {
-  const res = await fetch(`${API}/anime/${id}`);
-  const anime = (await res.json()).data;
-
+// 📺 EPISODES LIST
+function renderEpisodes(data) {
   document.getElementById("content").innerHTML = `
-    <h2>${anime.title}</h2>
-    <img src="${anime.images.jpg.image_url}">
-    <p>${anime.synopsis}</p>
-    <button onclick="addWishlist(${id})">Add Wishlist</button>
-    <button onclick="playTrailer('${anime.trailer.embed_url}')">Play Trailer</button>
+    <h1>${data.title}</h1>
+    <div class="episodes">
+      ${data.episodes.map(ep => `
+        <button onclick="playEpisode('${ep.id}', ${ep.number})">
+          Episode ${ep.number}
+        </button>
+      `).join("")}
+    </div>
   `;
 }
 
-function addWishlist(id) {
-  wishlist.push(id);
-  localStorage.setItem("wishlist", JSON.stringify(wishlist));
-  alert("Added!");
-}
+// ▶️ PLAY EPISODE
+async function playEpisode(id, number) {
+  currentEpisode = number;
 
-async function showWishlist() {
-  let html = "<h2>Wishlist</h2>";
-  for (let id of wishlist) {
-    const res = await fetch(`${API}/anime/${id}`);
-    const anime = (await res.json()).data;
-    html += createCard(anime);
-  }
-  document.getElementById("content").innerHTML = html;
-}
+  const res = await fetch(`${STREAM_API}/watch/${id}`);
+  const data = await res.json();
 
-function playTrailer(url) {
+  const sources = data.sources;
+  const subtitles = data.subtitles;
+
   document.getElementById("playerModal").classList.remove("hidden");
-  document.getElementById("videoPlayer").src = url;
+
+  const video = document.getElementById("videoPlayer");
+  video.src = sources[0].url;
+
+  // 🎧 SUB/DUB SELECTOR
+  let subMenu = document.getElementById("subMenu");
+  subMenu.innerHTML = subtitles.map(s =>
+    `<option value="${s.url}">${s.lang}</option>`
+  ).join("");
 }
 
+// 🔁 NEXT EPISODE
 function nextEpisode() {
-  alert("Next episode logic here");
+  let next = currentEpisodesList.find(e => e.number === currentEpisode + 1);
+  if (next) playEpisode(next.id, next.number);
 }
 
-// SEARCH
-document.getElementById("search").addEventListener("input", async (e) => {
-  let q = e.target.value;
-  if (!q) return;
+// 🏠 HOME
+async function goHome() {
+  document.getElementById("content").innerHTML = "";
+  await loadHero();
 
-  const res = await fetch(`${API}/anime?q=${q}`);
-  const data = (await res.json()).data;
-
-  document.getElementById("suggestions").innerHTML =
-    data.slice(0, 5).map(a => `<div onclick="openDetails(${a.mal_id})">${a.title}</div>`).join("");
-});
-
-// PROFILE
-function showProfile() {
-  document.getElementById("content").innerHTML = `
-    <h2>Profile</h2>
-    <input id="user" placeholder="Username or Email">
-    <input id="pass" type="password" placeholder="Password">
-    <button onclick="signup()">Sign Up</button>
-    <button onclick="login()">Sign In</button>
-    <button onclick="logout()">Sign Out</button>
-    <button onclick="clearHistory()">Clear History</button>
-  `;
+  await loadRow("Trending", "/top/anime");
+  await loadRow("Top Rated", "/top/anime?filter=bypopularity");
+  await loadRow("Upcoming", "/seasons/upcoming");
 }
-
-function signup() {
-  localStorage.setItem("user", document.getElementById("user").value);
-  localStorage.setItem("pass", document.getElementById("pass").value);
-  alert("Account created");
-}
-
-function login() {
-  alert("Signed in");
-}
-
-function logout() {
-  alert("Logged out");
-}
-
-function clearHistory() {
-  if (confirm("Are you sure?")) {
-    localStorage.clear();
-  }
-}
-
-// INSTALL PWA
-let deferredPrompt;
-window.addEventListener("beforeinstallprompt", (e) => {
-  deferredPrompt = e;
-});
-
-document.getElementById("installBtn").onclick = async () => {
-  if (deferredPrompt) {
-    deferredPrompt.prompt();
-  }
-};
 
 // INIT
 goHome();
