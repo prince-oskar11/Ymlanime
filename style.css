@@ -1,4 +1,4 @@
-body { margin:0; background:black; color:white; font-family:Arial; }
+body { margin:0; background:black; color:orange; font-family:Arial; }
 .nav { display:flex; justify-content:space-between; padding:10px; background:black; }
 .logo { color:orange; font-size:24px; }
 .icons button { background:none; border:none; color:white; font-size:20px; }
