@@ -1,0 +1,71 @@
+body {
+  margin: 0;
+  font-family: Arial;
+  background: beige;
+  color: #222;
+}
+
+header {
+  background: #2e7d32;
+  color: white;
+  padding: 10px;
+}
+
+h1 {
+  margin: 0;
+}
+
+.search-bar {
+  display: flex;
+  margin-top: 10px;
+}
+
+.search-bar input {
+  flex: 1;
+  padding: 10px;
+}
+
+.search-bar button {
+  background: #1b5e20;
+  color: white;
+  border: none;
+  padding: 10px;
+}
+
+nav {
+  margin-top: 10px;
+}
+
+nav button {
+  margin-right: 5px;
+}
+
+#content {
+  padding: 10px;
+}
+
+.card {
+  display: inline-block;
+  width: 150px;
+  margin: 10px;
+  position: relative;
+}
+
+.card img {
+  width: 100%;
+}
+
+.overlay {
+  position: absolute;
+  font-size: 12px;
+  color: white;
+  padding: 2px 5px;
+}
+
+.ep { top: 0; left: 0; background: green; }
+.age { bottom: 0; left: 0; background: black; }
+.rate { bottom: 0; right: 0; background: orange; }
+
+.hidden {
+  display: none;
+}
