@@ -263,15 +263,39 @@ function login() {
   }
 
   async function loadHero() {
-    try {
-      const res = await fetch(API + "/top/anime");
-      const data = (await res.json()).data;
-      const hero = data[0];
-      document.getElementById("hero").style.backgroundImage = `url(${hero.images.jpg.image_url})`;
-      document.getElementById("heroTitle").innerText = hero.title;
-    } catch (e) { console.error(e); }
+  const query = `
+    query {
+      Page(perPage: 1) {
+        media(sort: TRENDING_DESC, type: ANIME) {
+          id
+          title {
+            romaji
+            english
+          }
+          description
+          coverImage {
+            large
+          }
+        }
+      }
+    }
+  `;
+  try {
+    const res = await fetch(API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query })
+    });
+    const data = await res.json();
+    const hero = data.data.Page.media[0];
+    document.getElementById("hero").style.backgroundImage = `url(${hero.coverImage.large})`;
+    document.getElementById("heroTitle").innerText = hero.title.english || hero.title.romaji;
+    document.getElementById("heroDesc").innerText = hero.description || "";
+  } catch (e) {
+    console.error(e);
   }
-
+  }
+  
   function renderRow(title, list) {
     const html = `<h2 class="text-xl font-bold mb-2">${title}</h2><div class="flex gap-4 overflow-x-auto">${list.map(a => `<div class="card" onclick="openAnime('${a.title}')" style="min-width:150px"><img src="${a.images.jpg.image_url}" class="rounded-lg w-full h-auto"></div>`).join('')}</div>`;
     document.getElementById("content").insertAdjacentHTML("beforeend", html);
