@@ -89,24 +89,63 @@ function renderResults(data) {
 
 async function searchAnime() {
   const query = document.getElementById("search").value;
-  if(!query) return;
-  const res = await fetch(`https://api.jikan.moe/v4/anime?q=${query}&sfw=true`);
-  const data = await res.json();
-  renderResults(data.data || []);
+  console.log('Searching for:', query);
+  if (!query) {
+    console.log('Empty query, returning');
+    return;
+  }
+  try {
+    const res = await fetch(`https://api.jikan.moe/v4/anime?q=${query}&sfw=true`);
+    console.log('Search response status:', res.status);
+    if (!res.ok) {
+      console.error('Search fetch error:', res.statusText);
+      alert('Failed to search.');
+      return;
+    }
+    const data = await res.json();
+    console.log('Search data:', data);
+    renderResults(data.data || []);
+  } catch (err) {
+    console.error('Search fetch error:', err);
+  }
 }
 
 async function loadSection(section) {
-  let url='';
-  switch(section){
-    case 'trending': url='https://api.jikan.moe/v4/top/anime?filter=bypopularity'; break;
-    case 'popular': url='https://api.jikan.moe/v4/top/anime?filter=bypopularity'; break;
-    case 'airing': url='https://api.jikan.moe/v4/seasons/now'; break;
-    case 'top': url='https://api.jikan.moe/v4/top/anime'; break;
-    case 'upcoming': url='https://api.jikan.moe/v4/seasons/upcoming'; break;
+  let url = '';
+  switch (section) {
+    case 'trending': 
+      url = 'https://api.jikan.moe/v4/top/anime?filter=bypopularity'; 
+      break;
+    case 'popular': 
+      url = 'https://api.jikan.moe/v4/top/anime?filter=bypopularity'; 
+      break;
+    case 'airing': 
+      url = 'https://api.jikan.moe/v4/seasons/now'; 
+      break;
+    case 'top': 
+      url = 'https://api.jikan.moe/v4/top/anime'; 
+      break;
+    case 'upcoming': 
+      url = 'https://api.jikan.moe/v4/seasons/upcoming'; 
+      break;
   }
-  const res = await fetch(url);
-  const data = await res.json();
-  renderResults(data.data || []);
+  console.log('Loading section:', section);
+  console.log('Fetching URL:', url);
+  try {
+    const res = await fetch(url);
+    console.log('Response status:', res.status);
+    if (!res.ok) {
+      console.error('Fetch error:', res.statusText);
+      alert('Failed to load data. Please try again later.');
+      return;
+    }
+    const data = await res.json();
+    console.log('Data received:', data);
+    renderResults(data.data || []);
+  } catch (err) {
+    console.error('Fetch error:', err);
+    alert('Error fetching data.');
+  }
 }
 
 function playTrailer(url){
