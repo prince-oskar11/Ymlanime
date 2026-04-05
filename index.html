@@ -1,648 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>YmlFlix</title>
-<!-- Firebase SDKs -->
-<script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-<script src="https://cdn.tailwindcss.com"></script>
-<link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet" />
-<!-- Optional: your style.css if any -->
-<!-- <link rel="stylesheet" href="style.css"> -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>YMLAnime</title>
+
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#0f172a"/>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial;
+      background: #0f172a;
+      color: white;
+    }
+    header {
+      padding: 1rem;
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+    input {
+      width: 90%;
+      padding: 10px;
+      margin: 10px;
+      border-radius: 8px;
+      border: none;
+    }
+    .card {
+      background: #1e293b;
+      margin: 10px;
+      padding: 10px;
+      border-radius: 10px;
+    }
+    video {
+      width: 100%;
+      margin-top: 10px;
+    }
+  </style>
 </head>
-<body class="bg-[#05070a] text-gray-200 font-sans">
+<body>
 
-<!-- HEADER NAVIGATION -->
-<header class="fixed top-0 w-full z-[2500] p-5 bg-glass backdrop-blur-md flex justify-between items-center">
-  <div class="text-2xl font-black cursor-pointer tracking-tighter" onclick="showPage('home')">YMLFLIX</div>
-  <div class="flex gap-3">
-    <button onclick="showPage('home')"><i class="fa fa-home"></i></button>
-    <button onclick="showPage('wishlist')"><i class="fa fa-heart"></i></button>
-    <button onclick="toggleDropdown('genreDrop')"><i class="fa fa-th-large"></i></button>
-    <button onclick="toggleDropdown('profileDrop')"><i class="fa fa-user-circle"></i></button>
-  </div>
-</header>
+<header>YMLAnime</header>
 
-<!-- MAIN CONTENT -->
-<div class="pt-24">
-  <!-- Hero Section -->
-  <div id="hero" class="h-[60vh] bg-cover bg-center relative" style="background-image:url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')">
-    <div class="absolute inset-0 bg-gradient-to-t from-[#05070a] via-transparent to-transparent"></div>
-    <div class="relative z-10 p-8 text-center max-w-3xl mx-auto">
-      <h1 id="heroTitle" class="text-4xl md:text-5xl font-extrabold mb-4">Top Anime</h1>
-      <p id="heroDesc" class="text-sm md:text-base mb-4 text-gray-400">Loading...</p>
-      <div class="flex justify-center gap-4">
-        <button id="heroPlayBtn" class="bg-orange text-black px-6 py-3 rounded-full uppercase font-bold text-sm hover:bg-red-600 hover:text-orange transition">Stream Now</button>
-        <button id="heroTrailerBtn" class="bg-orange/10 backdrop-blur-md text-orange px-6 py-3 rounded-full uppercase font-bold text-sm hover:bg-orange/20 transition">Trailer</button>
-      </div>
-    </div>
-  </div>
+<input id="search" placeholder="Search anime..." />
+<div id="results"></div>
 
-  <!-- Content Rows -->
-  <main class="max-w-7xl mx-auto p-4 space-y-8" id="content">
-    <section>
-      <h2 class="text-xl font-bold mb-2">Trending Now</h2>
-      <div id="trendingGrid" class="flex gap-4 overflow-x-auto"></div>
-    </section>
-    <section>
-      <h2 class="text-xl font-bold mb-2">Most Popular</h2>
-      <div id="popularGrid" class="flex gap-4 overflow-x-auto"></div>
-    </section>
-    <section>
-      <h2 class="text-xl font-bold mb-2">Top Rated</h2>
-      <div id="ratedGrid" class="flex gap-4 overflow-x-auto"></div>
-    </section>
-    <section>
-      <h2 class="text-xl font-bold mb-2">Now Playing</h2>
-      <div id="airingGrid" class="flex gap-4 overflow-x-auto"></div>
-    </section>
-    <section>
-      <h2 class="text-xl font-bold mb-2">Upcoming</h2>
-      <div id="upcomingGrid" class="flex gap-4 overflow-x-auto"></div>
-    </section>
-  </main>
-</div>
-
-<!-- Player Modal -->
-<div id="playerView" class="fixed inset-0 bg-[#05070a] z-[4000] hidden flex-col">
-  <div class="flex items-center justify-between p-4 bg-gray-900">
-    <button onclick="closePlayer()" class="p-2 rounded-full hover:bg-gray-700"><i class="fa fa-chevron-left"></i></button>
-    <div class="text-center flex-1">
-      <h3 id="playerTitle" class="text-sm font-semibold uppercase truncate max-w-[250px] mx-auto"></h3>
-      <div class="flex justify-center gap-2 mt-2">
-        <button id="subBtn" class="px-4 py-1 rounded bg-gray-800 text-xs font-semibold" onclick="setMode('sub')">SUB</button>
-        <button id="dubBtn" class="px-4 py-1 rounded bg-gray-800 text-xs font-semibold" onclick="setMode('dub')">DUB</button>
-      </div>
-    </div>
-    <button onclick="closePlayer()" class="p-2 rounded-full hover:bg-gray-700"><i class="fa fa-home"></i></button>
-  </div>
-  <div class="flex-1 relative">
-    <video id="player" controls class="w-full h-full object-cover"></video>
-    <div id="playerLoader" class="absolute inset-0 bg-black/70 flex items-center justify-center hidden z-50">
-      <div class="loader border-4 border-red-600 border-t-transparent rounded-full w-12 h-12 animate-spin"></div>
-    </div>
-  </div>
-  <div class="p-4 bg-gray-900 flex flex-col md:flex-row gap-4">
-    <button id="trailerBtn" class="flex-1 bg-indigo-600 hover:bg-indigo-500 py-3 rounded uppercase font-semibold text-sm flex items-center justify-center"><i class="fa fa-video mr-2"></i>Trailer</button>
-    <button onclick="nextEpisode()" class="flex-1 bg-red-600 hover:bg-red-500 py-3 rounded uppercase font-semibold text-sm flex items-center justify-center"><i class="fa fa-chevron-right mr-2"></i>Next Episode</button>
-  </div>
-  <div class="p-4 bg-gray-900 flex justify-between items-center">
-    <div class="text-gray-400 text-xs">Episode <span id="totalEpDisplay"></span></div>
-    <div class="flex gap-2" id="epList"></div>
-  </div>
-</div>
-
-<!-- Modals / Overlays -->
-<div id="choiceOverlay" class="fixed inset-0 bg-black/70 flex items-center justify-center hidden z-[5000]">
-  <div class="bg-gray-900 p-6 rounded-lg max-w-sm w-full text-center">
-    <img id="choiceImg" src="" class="mx-auto mb-4 rounded-lg w-40 h-56 object-cover" />
-    <h3 id="choiceTitle" class="text-white mb-4 text-lg font-bold"></h3>
-    <div class="flex gap-4 justify-center mb-4">
-      <button id="choicePlay" class="px-4 py-2 bg-green-600 rounded" onclick="startStreaming()">Start Streaming</button>
-      <button id="choiceWish" class="px-4 py-2 bg-gray-700 rounded" onclick="toggleWish(currentAnime)">Add to Wishlist</button>
-    </div>
-    <button class="mt-2 px-4 py-2 bg-gray-800 rounded" onclick="document.getElementById('choiceOverlay').classList.add('hidden')">Dismiss</button>
-  </div>
-</div>
-
-<div id="trailerOverlay" class="fixed inset-0 bg-black/80 flex items-center justify-center hidden z-[6000]">
-  <div class="relative w-full max-w-4xl aspect-video bg-black rounded-lg overflow-hidden">
-    <button onclick="closeTrailer()" class="absolute top-4 right-4 bg-red-600 text-white rounded-full p-2 z-[7000]"><i class="fa fa-times"></i></button>
-    <iframe id="trailerFrame" class="w-full h-full" src="" frameborder="0" allowfullscreen></iframe>
-  </div>
-</div>
 <script>
- 
-  auth.onAuthStateChanged(user => {
-    if (user) {
-      currentUser = user;
-      currentProfile = localStorage.getItem("activeProfile");
-      if (!currentProfile) showProfiles();
-      else goHome();
-    } else {
-      showAuth();
-    }
+const resultsDiv = document.getElementById("results");
+
+document.getElementById("search").addEventListener("change", async (e) => {
+  const query = e.target.value;
+
+  const res = await fetch(`https://api.jikan.moe/v4/anime?q=${query}`);
+  const data = await res.json();
+
+  resultsDiv.innerHTML = "";
+
+  data.data.forEach(anime => {
+    const div = document.createElement("div");
+    div.className = "card";
+
+    div.innerHTML = `
+      <h3>${anime.title}</h3>
+      <img src="${anime.images.jpg.image_url}" width="100%" />
+      <button onclick="playSample()">Play</button>
+    `;
+
+    resultsDiv.appendChild(div);
   });
+});
 
-  // ---------------------------
-  // 3️⃣ AUTH UI
-  // ---------------------------
-  function showAuth() {
-    document.getElementById("content").innerHTML = `
-      <div <div class="p-8 max-w-md mx-auto bg-gray-900 rounded-lg shadow-lg">
-  <h2 class="text-2xl font-bold mb-4">Login / Sign Up</h2>
-  <input id="email" class="w-full p-3 mb-3 rounded bg-gray-800" placeholder="Email" />
-  <input id="password" type="password" class="w-full p-3 mb-3 rounded bg-gray-800" placeholder="Password" />
-  <div class="flex gap-2 mb-4">
-    <button onclick="signup()" class="flex-1 bg-green-600 hover:bg-green-500 px-4 py-2 rounded font-semibold">Sign Up</button>
-    <button onclick="login()" class="flex-1 bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded font-semibold">Login</button>
-  </div>
-</div>
-    `;
-  }
+function playSample() {
+  const video = document.createElement("video");
+  video.controls = true;
 
-  function signup() {
-  const email = document.getElementById("email").value;
-  const pass = document.getElementById("password").value;
-  console.log("Signing up:", email);
-  auth.createUserWithEmailAndPassword(email, pass)
-    .then(() => {
-      console.log("Signup successful");
-      alert("Account created! Please login.");
-    })
-    .catch(e => {
-      console.error("Signup error:", e);
-      alert(e.message);
-    });
+  // ⚠️ Replace with your own LEGAL stream
+  video.src = "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8";
+
+  resultsDiv.innerHTML = "";
+  resultsDiv.appendChild(video);
 }
-
-function login() {
-  const email = document.getElementById("email").value;
-  const pass = document.getElementById("password").value;
-  console.log("Logging in:", email);
-  auth.signInWithEmailAndPassword(email, pass)
-    .then(() => {
-      console.log("Login successful");
-    })
-    .catch(e => {
-      console.error("Login error:", e);
-      alert(e.message);
-    });
-}
-
-  function logout() {
-    auth.signOut();
-    localStorage.removeItem("activeProfile");
-  }
-
-  // ---------------------------
-  // 4️⃣ PROFILES
-  // ---------------------------
-  async function showProfiles() {
-    const snap = await db.collection("users")
-      .doc(currentUser.uid)
-      .collection("profiles")
-      .get();
-    document.getElementById("content").innerHTML = `
-      <div class="p-8 max-w-md mx-auto bg-gray-900 rounded-lg shadow-lg text-center">
-        <h2 class="text-xl font-bold mb-4">Select Profile</h2>
-        ${snap.docs.map(d => `<div class="mb-2 p-3 bg-gray-800 rounded cursor-pointer hover:bg-gray-700" onclick="selectProfile('${d.id}')">${d.id}</div>`).join("")}
-        <div class="mt-4">
-          <input id="newProfile" placeholder="New Profile" class="w-full p-2 mb-2 rounded bg-gray-800" />
-          <button onclick="createProfile(document.getElementById('newProfile').value)" class="w-full bg-green-600 hover:bg-green-500 px-4 py-2 rounded font-semibold">Add Profile</button>
-        </div>
-      </div>
-    `;
-  }
-
-  async function createProfile(name) {
-    if (!name) return;
-    await db.collection("users").doc(currentUser.uid)
-      .collection("profiles").doc(name)
-      .set({ name, created: Date.now() });
-    selectProfile(name);
-  }
-
-  function selectProfile(name) {
-    currentProfile = name;
-    localStorage.setItem("activeProfile", name);
-    goHome();
-  }
-
-  // ---------------------------
-  // 5️⃣ TV REMOTE NAVIGATION
-  // ---------------------------
-  let focusIndex = 0, items = [];
-  function updateFocusable() {
-    items = [...document.querySelectorAll(".card,button")];
-  }
-  function navigate(dir) {
-    updateFocusable();
-    if (dir === "right") focusIndex++;
-    if (dir === "left") focusIndex--;
-    if (dir === "down") focusIndex += 5;
-    if (dir === "up") focusIndex -= 5;
-    focusIndex = Math.max(0, Math.min(items.length - 1, focusIndex));
-    items.forEach(i => i.classList.remove("focused"));
-    if (items[focusIndex]) items[focusIndex].classList.add("focused");
-  }
-  function selectItem() {
-    if (items[focusIndex]) items[focusIndex].click();
-  }
-
-  // ---------------------------
-  // 6️⃣ API SETTINGS
-  // ---------------------------
-  const API = "https://graphql.anilist.co";
-  const STREAM = "https://api.consumet.org/anime/zoro";
-
-  // ---------------------------
-  // 7️⃣ HOME / HERO / ROWS
-  // ---------------------------
-  async function goHome() {
-    if (!currentProfile) { showProfiles(); return; }
-    document.getElementById("content").innerHTML = "";
-    await loadHero();
-    await loadContinueWatching();
-    await loadRow("🔥 Trending", "/top/anime");
-    await loadRow("⭐ Most Popular", "/top/anime?filter=bypopularity");
-    await loadRow("📺 Playing Now", "/seasons/now");
-    await loadRow("⏳ Upcoming", "/seasons/upcoming");
-    await loadSmartRecommendations();
-  }
-  async function loadHero() {
-  const query = `
-    query {
-      Page(perPage: 1) {
-        media(sort: TRENDING_DESC, type: ANIME) {
-          id
-          title {
-            romaji
-            english
-          }
-          description
-          coverImage {
-            large
-          }
-        }
-      }
-    }
-  `;
-  try {
-    const res = await fetch(API, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ query })
-    });
-    const data = await res.json();
-    const hero = data.data.Page.media[0];
-    document.getElementById("hero").style.backgroundImage = `url(${hero.coverImage.large})`;
-    document.getElementById("heroTitle").innerText = hero.title.english || hero.title.romaji;
-    document.getElementById("heroDesc").innerText = hero.description || "";
-    document.getElementById("heroPlayBtn").onclick = () => openAnime(hero.title.english || hero.title.romaji);
-  } catch (e) {
-    console.error(e);
-  }
-    });
-    const data = await res.json();
-    const hero = data.data.Page.media[0];
-    document.getElementById("hero").style.backgroundImage = `url(${hero.coverImage.large})`;
-    document.getElementById("heroTitle").innerText = hero.title.english || hero.title.romaji;
-    document.getElementById("heroDesc").innerText = hero.description || "";
-    document.getElementById("heroPlayBtn").onclick = () => openAnime(hero.title.english || hero.title.romaji);
-  } catch (e) {
-    console.error(e);
-  }
-  }
-  
-  function renderRow(title, list) {
-    const html = `<h2 class="text-xl font-bold mb-2">${title}</h2><div class="flex gap-4 overflow-x-auto">${list.map(a => `<div class="card" onclick="openAnime('${a.title}')" style="min-width:150px"><img src="${a.images.jpg.image_url}" class="rounded-lg w-full h-auto"></div>`).join('')}</div>`;
-    document.getElementById("content").insertAdjacentHTML("beforeend", html);
-  }
-
-  async function loadRow(title, endpoint) {
-  let query;
-  switch(endpoint) {
-    case "/top/anime":
-      query = `
-        query {
-          Page(perPage: 10) {
-            media(sort: TRENDING_DESC, type: ANIME) {
-              id
-              title {
-                romaji
-                english
-              }
-              coverImage {
-                large
-              }
-            }
-          }
-        }
-      `;
-      break;
-    case "/top/anime?filter=bypopularity":
-      query = `
-        query {
-          Page(perPage: 10) {
-            media(sort: POPULARITY_DESC, type: ANIME) {
-              id
-              title {
-                romaji
-                english
-              }
-              coverImage {
-                large
-              }
-            }
-          }
-        }
-      `;
-      break;
-    case "/seasons/now":
-      query = `
-        query {
-          Page(perPage: 10) {
-            media(sort: AIRING_DESC, type: ANIME) {
-              id
-              title {
-                romaji
-                english
-              }
-              coverImage {
-                large
-              }
-            }
-          }
-        }
-      `;
-      break;
-    case "/seasons/upcoming":
-      query = `
-        query {
-          Page(perPage: 10) {
-            media(sort: UPCOMING_DESC, status: NOT_YET_RELEASED, type: ANIME) {
-              id
-              title {
-                romaji
-                english
-              }
-              coverImage {
-                large
-              }
-            }
-          }
-        }
-      `;
-      break;
-    default:
-      return;
-  }
-
-  try {
-    const res = await fetch(API, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ query })
-    });
-    const result = await res.json();
-    const data = result.data.Page.media;
-    renderRow(title, data);
-  } catch (e) {
-    console.error(e);
-  }
-  }
-
-  // ---------------------------
-  // 8️⃣ ANIME DETAIL & PLAYER
-  // ---------------------------
-  let currentAnimeId = null;
-  let currentEpisode = null;
-  let currentAnime = null; // store full anime info if needed
-
-  async function openAnime(title) {
-  const query = `
-    query ($search: String) {
-      Media(search: $search, type: ANIME) {
-        id
-        title {
-          romaji
-          english
-        }
-        description
-        coverImage {
-          large
-        }
-        episodes
-      }
-    }
-  `;
-  try {
-    const res = await fetch(API, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ query, variables: { search: title } })
-    });
-    const data = await res.json();
-    const media = data.data.Media;
-    currentAnimeId = media.id;
-    // Fetch episodes info from your streaming API
-    const infoRes = await fetch(`${STREAM}/info/${currentAnimeId}`);
-    const epData = await infoRes.json();
-    currentEpisode = epData.episodes[0]?.number || 1;
-    // Render episodes
-    document.getElementById("epList").innerHTML = epData.episodes
-      .map(e => `<button class="px-3 py-1 bg-gray-700 rounded text-sm" onclick="playEpisode('${e.id}',${e.number})">Ep ${e.number}</button>`)
-      .join('');
-  } catch (e) {
-    console.error(e);
-  }
-  }
-
-  async function playEpisode(id, num) {
-  currentEpisode = num;
-  try {
-    const res = await fetch(`${STREAM}/watch/${id}`);
-    const data = await res.json();
-    // Use the first source as video URL
-    document.getElementById("player").src = data.sources[0].url;
-    document.getElementById("player").play();
-    document.getElementById("playerView").classList.remove("hidden");
-    document.getElementById("playerTitle").innerText = "Loading...";
-    document.getElementById("totalEpDisplay").innerText = "Episodes: " + data.episodes.length;
-  } catch (e) { console.error(e); }
-  }
-
-  function closePlayer() {
-    document.getElementById("playerView").classList.add("hidden");
-    document.getElementById("player").pause();
-    document.getElementById("player").src = "";
-  }
-
-  async function nextEpisode() {
-    alert("Next episode coming soon...");
-  }
-
-  function setMode(mode) {
-    // Example: toggle subtitles or dubbing
-    // For now, just store mode
-    // You can extend this
-  }
-
-  function showPage(page) {
-    // Show/hide pages if you have multiple pages
-  }
-
-  // ---------------------------
-  // Firebase Authentication
-  // ---------------------------
-  const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_AUTH_DOMAIN",
-    projectId: "YOUR_PROJECT_ID"
-  };
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.firestore();
-  let currentUser = null;
-  let currentProfile = null;
-
-  auth.onAuthStateChanged(user => {
-    if (user) {
-      currentUser = user;
-      currentProfile = localStorage.getItem("activeProfile");
-      if (!currentProfile) showProfiles();
-      else goHome();
-    } else {
-      showAuth();
-    }
-  });
-
-  function showAuth() {
-    document.getElementById("content").innerHTML = `
-      <div class="p-8 max-w-md mx-auto bg-gray-900 rounded-lg shadow-lg">
-        <h2 class="text-2xl font-bold mb-4">Login / Sign Up</h2>
-        <input id="email" class="w-full p-3 mb-3 rounded bg-gray-800" placeholder="Email" />
-        <input id="password" type="password" class="w-full p-3 mb-3 rounded bg-gray-800" placeholder="Password" />
-        <div class="flex gap-2 mb-4">
-          <button onclick="signup()" class="flex-1 bg-green-600 hover:bg-green-500 px-4 py-2 rounded font-semibold">Sign Up</button>
-          <button onclick="login()" class="flex-1 bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded font-semibold">Login</button>
-        </div>
-        <button onclick="googleLogin()" class="w-full bg-red-600 hover:bg-red-500 px-4 py-2 rounded font-semibold"><i class="fa fa-google"></i> Sign in with Google</button>
-      </div>
-    `;
-  }
-
-  function signup() {
-    const email = document.getElementById("email").value;
-    const pass = document.getElementById("password").value;
-    auth.createUserWithEmailAndPassword(email, pass)
-      .then(() => alert("Account created"))
-      .catch(e => alert(e.message));
-  }
-
-  function login() {
-    const email = document.getElementById("email").value;
-    const pass = document.getElementById("password").value;
-    auth.signInWithEmailAndPassword(email, pass)
-      .catch(e => alert(e.message));
-  }
-  
-  function logout() {
-    auth.signOut();
-    localStorage.removeItem("activeProfile");
-  }
-
-  // ---------------------------
-  // 4️⃣ PROFILES
-  // ---------------------------
-  async function showProfiles() {
-    const snap = await db.collection("users")
-      .doc(currentUser.uid)
-      .collection("profiles")
-      .get();
-    document.getElementById("content").innerHTML = `
-      <div class="p-8 max-w-md mx-auto bg-gray-900 rounded-lg shadow-lg text-center">
-        <h2 class="text-xl font-bold mb-4">Select Profile</h2>
-        ${snap.docs.map(d => `<div class="mb-2 p-3 bg-gray-800 rounded cursor-pointer hover:bg-gray-700" onclick="selectProfile('${d.id}')">${d.id}</div>`).join("")}
-        <div class="mt-4">
-          <input id="newProfile" placeholder="New Profile" class="w-full p-2 mb-2 rounded bg-gray-800" />
-          <button onclick="createProfile(document.getElementById('newProfile').value)" class="w-full bg-green-600 hover:bg-green-500 px-4 py-2 rounded font-semibold">Add Profile</button>
-        </div>
-      </div>
-    `;
-  }
-
-  async function createProfile(name) {
-    if (!name) return;
-    await db.collection("users").doc(currentUser.uid)
-      .collection("profiles").doc(name)
-      .set({ name, created: Date.now() });
-    selectProfile(name);
-  }
-
-  function selectProfile(name) {
-    currentProfile = name;
-    localStorage.setItem("activeProfile", name);
-    goHome();
-  }
-
-  // ---------------------------
-  // 5️⃣ TV REMOTE NAVIGATION
-  // ---------------------------
-  let focusIndex = 0, items = [];
-  function updateFocusable() {
-    items = [...document.querySelectorAll(".card,button")];
-  }
-  function navigate(dir) {
-    updateFocusable();
-    if (dir === "right") focusIndex++;
-    if (dir === "left") focusIndex--;
-    if (dir === "down") focusIndex += 5;
-    if (dir === "up") focusIndex -= 5;
-    focusIndex = Math.max(0, Math.min(items.length - 1, focusIndex));
-    items.forEach(i => i.classList.remove("focused"));
-    if (items[focusIndex]) items[focusIndex].classList.add("focused");
-  }
-  function selectItem() {
-    if (items[focusIndex]) items[focusIndex].click();
-  }
-
-  // ---------------------------
-  // 8️⃣ STREAM API & Player
-  // ---------------------------
-  // Note: Already integrated above in openAnime/playEpisode functions
-
-  // ---------------------------
-  // 9️⃣ Load hero, rows, etc.
-  // ---------------------------
-  async function loadHero() {
-    try {
-      const res = await fetch(API + "/top/anime");
-      const data = (await res.json()).data;
-      const hero = data[0];
-      document.getElementById("hero").style.backgroundImage = `url(${hero.images.jpg.image_url})`;
-      document.getElementById("heroTitle").innerText = hero.title;
-      document.getElementById("heroDesc").innerText = hero.description || "";
-      document.getElementById("heroPlayBtn").onclick = () => openAnime(hero.title);
-      document.getElementById("heroTrailerBtn").onclick = () => {
-        // You can add trailer logic here if available
-      };
-    } catch (e) { console.error(e); }
-  }
-
-  async function loadContinueWatching() {
-    // Implement if needed
-  }
-
-  async function loadSmartRecommendations() {
-    // Implement if needed
-  }
-
-loadHero();
-loadRow("🔥 Trending", "/top/anime");
-loadRow("⭐ Most Popular", "/top/anime?filter=bypopularity");
-loadRow("📺 Playing Now", "/seasons/now");
-loadRow("⏳ Upcoming", "/seasons/upcoming");
-  }
-  // ---------------------------
-  // Additional Helper functions
-  // ---------------------------
-  function showPage(page) {
-    // Implement page switching if multiple pages
-  }
-
-  function toggleDropdown(id) {
-    // Implement dropdown toggle
-  }
-
-  function closeTrailer() {
-    document.getElementById("trailerOverlay").classList.add("hidden");
-    document.getElementById("trailerFrame").src = "";
-  }
 </script>
-<!-- End of script -->
+
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js");
+}
+</script>
+
 </body>
 </html>
