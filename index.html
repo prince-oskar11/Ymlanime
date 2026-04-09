@@ -1,233 +1,408 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>YMLAnime</title>
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0f172a">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>YmlAnime</title>
+<link rel="manifest" href="manifest.json" />
 <style>
-  body {margin:0;font-family:Arial;background:#0f172a;color:white;}
-  header {padding:15px;font-size:24px;font-weight:bold;display:flex;justify-content:space-between;align-items:center;}
-  header button {background:#3b82f6;border:none;color:white;padding:8px 12px;border-radius:8px;cursor:pointer;}
-  .container {padding:10px;}
-  input {width:60%;padding:10px;border-radius:8px;border:none;margin-right:10px;}
-  button.section-btn {margin:5px;background:#2563eb;border:none;color:white;padding:5px 10px;border-radius:5px;cursor:pointer;}
-  .grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:10px;}
-  .card {background:#1e293b;padding:10px;border-radius:10px;}
-  .card img {width:100%;border-radius:8px;cursor:pointer;}
-  iframe {width:100%;height:300px;}
-  .modal {position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);display:none;justify-content:center;align-items:center;z-index:100;}
-  .modal-content {width:90%;max-width:600px;}
-  .genre-bar {margin-top:10px;overflow-x:auto;white-space:nowrap;}
-  .genre-bar button {margin-right:5px;}
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #222;
+    color: #fff;
+  }
+
+  header {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background: #111;
+    position: sticky;
+    top: 0;
+    z-index: 999;
+  }
+
+  .icon {
+    margin: 0 10px;
+    cursor: pointer;
+    font-size: 20px;
+  }
+
+  #search-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+  }
+
+  #search-input {
+    width: 60%;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+  }
+
+  #install-btn {
+    margin-left: 10px;
+    padding: 5px 10px;
+    background-color: #4CAF50;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  main {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 10px;
+  }
+
+  .poster {
+    position: relative;
+    width: 200px;
+    margin: 10px;
+    cursor: pointer;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #333;
+  }
+
+  .poster img {
+    width: 100%;
+    display: block;
+  }
+
+  .poster-info {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    right: 8px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #fff;
+  }
+
+  .heart {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 20px;
+    cursor: pointer;
+  }
+
+  .bottom-left {
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    font-size: 12px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Modal styles */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.6);
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-content {
+    background: #222;
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 400px;
+    width: 90%;
+  }
+
+  #video-player {
+    width: 100%;
+    max-height: 70vh;
+  }
+
+  button {
+    margin-top: 10px;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    background-color: #4CAF50;
+    cursor: pointer;
+  }
+
+  #profile-section {
+    display: flex;
+    flex-direction: column;
+  }
+
+  #profile-section input {
+    margin: 5px 0;
+    padding: 5px;
+  }
+
 </style>
 </head>
 <body>
 
 <header>
-  YMLAnime
-  <button onclick="showWatchlist()">Watchlist</button>
+  <div class="icon" id="home-icon" title="Home">🏠</div>
+  <div class="icon" id="wishlist-icon" title="Wishlist">❤️</div>
+  <div class="icon" id="genres-icon" title="Genres">🎞️</div>
+  <div id="search-container">
+    <input type="text" id="search-input" placeholder="YmlAnime..." />
+    <button id="install-btn">Install</button>
+  </div>
+  <div class="icon" id="profile-icon" title="Profile">👤</div>
 </header>
 
-<div class="container">
-  <input id="search" placeholder="Search anime...">
-  <button onclick="searchAnime()">Search</button>
-
-  <div class="genre-bar" id="genres"></div>
-
-  <div>
-    <button class="section-btn" onclick="loadSection('trending')">Trending</button>
-    <button class="section-btn" onclick="loadSection('popular')">Most Popular</button>
-    <button class="section-btn" onclick="loadSection('airing')">Airing Now</button>
-    <button class="section-btn" onclick="loadSection('top')">Top Rated</button>
-    <button class="section-btn" onclick="loadSection('upcoming')">Upcoming</button>
-  </div>
-
-  <div id="results" class="grid"></div>
-</div>
+<main id="content">
+  <!-- Posters will be dynamically inserted here -->
+</main>
 
 <!-- Trailer Modal -->
-<div id="modal" class="modal" style="display:none;">
-  <div class="modal-content" style="background:#1e293b; padding:20px; border-radius:10px; position:relative;">
-    <button style="position:absolute; top:10px; right:10px; background:#ef4444; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;" onclick="closeTrailer()">Close</button>
-    <div style="margin-bottom:10px;">
-      <button onclick="loadStream('vidstream')">Vidstream</button>
-      <button onclick="loadStream('filemoon')">Filemoon</button>
-      <button onclick="loadStream('streamSB')">StreamSB</button>
-      <button onclick="loadStream('mp4upload')">Mp4Upload</button>
-      <button onclick="loadStream('doodstream')">DoodStream</button>
+<div id="trailer-modal" class="modal">
+  <div class="modal-content">
+    <video id="video-player" controls autoplay></video>
+    <button id="close-trailer">Close</button>
+  </div>
+</div>
+
+<!-- Wishlist Modal -->
+<div id="wishlist-modal" class="modal">
+  <div class="modal-content">
+    <h3>Add to Wishlist</h3>
+    <p id="wishlist-show-title"></p>
+    <button id="add-wishlist">Add</button>
+    <button id="cancel-wishlist">Cancel</button>
+  </div>
+</div>
+
+<!-- Profile Modal -->
+<div id="profile-modal" class="modal">
+  <div class="modal-content" id="profile-section">
+    <div id="sign-in-section">
+      <h3>Sign In</h3>
+      <input type="text" id="username" placeholder="Username" />
+      <input type="password" id="password" placeholder="Password" />
+      <button id="sign-in-btn">Sign In</button>
     </div>
-    <iframe id="trailer" style="width:100%; height:400px; border:none;" allowfullscreen></iframe>
+    <div id="profile-actions" style="display:none;">
+      <h3>Profile</h3>
+      <button id="sign-out-btn">Sign Out</button>
+      <button id="clear-history">Clear History</button>
+    </div>
   </div>
 </div>
 
 <script>
-let watchlist = JSON.parse(localStorage.getItem('watchlist')||'[]');
-let deferredPrompt;
+  // Sample data
+  const shows = [
+    {
+      id: 1,
+      title: "Attack on Titan",
+      episodes: 75,
+      rating: 9.0,
+      age: "16+",
+      subDub: "Sub",
+      trailer: "https://www.w3schools.com/html/mov_bbb.mp4",
+      streams: ["Filemoon", "StreamSB", "Mp4Upload", "DoodStream"],
+      mostRated: true,
+      backgroundUrl: "https://images.alphacoders.com/123/12345.jpg"
+    },
+    {
+      id: 2,
+      title: "My Hero Academia",
+      episodes: 88,
+      rating: 8.5,
+      age: "13+",
+      subDub: "Dub",
+      trailer: "https://www.w3schools.com/html/movie.mp4",
+      streams: ["Filemoon", "StreamSB"],
+      mostRated: false,
+      backgroundUrl: "https://images.alphacoders.com/543/54321.jpg"
+    },
+    // Add more shows as needed
+  ];
 
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  alert('You can install YMLAnime from your browser menu!');
-});
+  let currentBackground = '';
 
-function promptInstall() {
-  if(deferredPrompt){
-    deferredPrompt.prompt();
-    deferredPrompt.userChoice.then(()=>{deferredPrompt=null});
+  const content = document.getElementById('content');
+
+  // Load shows
+  function loadShows(showsToLoad) {
+    content.innerHTML = '';
+    showsToLoad.forEach(show => {
+      const posterDiv = document.createElement('div');
+      posterDiv.className = 'poster';
+      posterDiv.dataset.id = show.id;
+      posterDiv.dataset.title = show.title;
+      posterDiv.dataset.trailer = show.trailer;
+      posterDiv.dataset.subdub = show.subDub;
+      posterDiv.dataset.streams = show.streams.join(',');
+
+      // Poster image
+      const img = document.createElement('img');
+      img.src = show.backgroundUrl;
+      img.alt = show.title;
+      posterDiv.appendChild(img);
+
+      // Info overlay
+      const info = document.createElement('div');
+      info.className = 'poster-info';
+
+      const epDiv = document.createElement('div');
+      epDiv.innerText = `Eps: ${show.episodes}`;
+      info.appendChild(epDiv);
+
+      const rateDiv = document.createElement('div');
+      rateDiv.innerText = `Rating: ${show.rating}`;
+      info.appendChild(rateDiv);
+
+      const ageDiv = document.createElement('div');
+      ageDiv.innerText = show.age;
+      info.appendChild(ageDiv);
+
+      posterDiv.appendChild(info);
+
+      // Heart icon
+      const heart = document.createElement('div');
+      heart.className = 'heart';
+      heart.innerHTML = '🤍';
+      heart.title = 'Add to Wishlist';
+      posterDiv.appendChild(heart);
+
+      // Bottom-left info
+      const bottomLeft = document.createElement('div');
+      bottomLeft.className = 'bottom-left';
+      bottomLeft.innerHTML = `<div>MostRated: ${show.mostRated}</div><div>Age: ${show.age}</div>`;
+      posterDiv.appendChild(bottomLeft);
+
+      // Event listeners
+      posterDiv.addEventListener('click', () => {
+        showPosterOptions(show);
+      });
+      heart.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleWishlist(show.id, heart);
+      });
+
+      content.appendChild(posterDiv);
+    });
+    // Change background
+    changeBackground(showsToLoad);
   }
-}
 
-function renderResults(data) {
-  const resultsDiv = document.getElementById("results");
-  resultsDiv.innerHTML = "";
-  data.forEach(anime => {
-    const div = document.createElement("div");
-    div.className = "card";
-    div.innerHTML = `
-      <img src="${anime.images.jpg.image_url}" onclick="playTrailer('${anime.trailer?.embed_url||''}')">
-      <h3>${anime.title}</h3>
-      <button onclick="addToWatchlist(${anime.mal_id})">Add</button>
-    `;
-    resultsDiv.appendChild(div);
-  });
-}
-
-async function searchAnime() {
-  const query = document.getElementById("search").value;
-  console.log('Searching for:', query);
-  if (!query) {
-    console.log('Empty query, returning');
-    return;
+  function changeBackground(showsToLoad) {
+    const mostRatedShow = showsToLoad.find(s => s.mostRated);
+    const url = mostRatedShow ? mostRatedShow.backgroundUrl : 'https://via.placeholder.com/1200x800?text=YmlAnime';
+    document.body.style.backgroundImage = `url(${url})`;
+    document.body.style.backgroundSize = 'cover';
   }
-  try {
-    const res = await fetch(`https://api.jikan.moe/v4/anime?q=${query}&sfw=true`);
-    console.log('Search response status:', res.status);
-    if (!res.ok) {
-      console.error('Search fetch error:', res.statusText);
-      alert('Failed to search.');
-      return;
+
+  // Show options modal (simplified)
+  function showPosterOptions(show) {
+    const options = confirm(`Options for ${show.title}:\nClick OK to Play Trailer\nCancel to do nothing.`);
+    if (options) {
+      playTrailer(show.trailer);
     }
-    const data = await res.json();
-    console.log('Search data:', data);
-    renderResults(data.data || []);
-  } catch (err) {
-    console.error('Search fetch error:', err);
   }
-}
 
-async function loadSection(section) {
-  let url = '';
-  switch (section) {
-    case 'trending': 
-      url = 'https://api.jikan.moe/v4/top/anime?filter=bypopularity'; 
-      break;
-    case 'popular': 
-      url = 'https://api.jikan.moe/v4/top/anime?filter=bypopularity'; 
-      break;
-    case 'airing': 
-      url = 'https://api.jikan.moe/v4/seasons/now'; 
-      break;
-    case 'top': 
-      url = 'https://api.jikan.moe/v4/top/anime'; 
-      break;
-    case 'upcoming': 
-      url = 'https://api.jikan.moe/v4/seasons/upcoming'; 
-      break;
+  // Play trailer
+  function playTrailer(src) {
+    const modal = document.getElementById('trailer-modal');
+    const video = document.getElementById('video-player');
+    video.src = src;
+    modal.style.display = 'flex';
   }
-  console.log('Loading section:', section);
-  console.log('Fetching URL:', url);
-  // Optional: Show loading spinner
-  document.getElementById('results').innerHTML = 'Loading...';
 
-  try {
-    const res = await fetch(url);
-    console.log('Response status:', res.status);
-    if (!res.ok) {
-      console.error('Fetch error:', res.statusText);
-      alert('Failed to load data. Please try again later.');
-      return;
-    }
-    const data = await res.json();
-    console.log('Data received:', data);
-    renderResults(data.data || []);
-  } catch (err) {
-    console.error('Fetch error:', err);
-    alert('Error fetching data.');
-  }
-}
-
-function playTrailer(url){
-  if(!url){alert('No trailer');return;}
-  document.getElementById('modal').style.display='flex';
-  document.getElementById('trailer').src=url;
-}
-
-// Map of streaming sources to your actual streaming URLs
-const streamSources = {
-  vidstream: 'https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4', // Replace with your actual URL
-  filemoon: 'https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4',
-  streamSB: 'https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4',
-  mp4upload: 'https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4',
-  doodstream: 'https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4'
-};
-
-function loadStream(source) {
-  const url = streamSources[source];
-  if (!url) {
-    alert('Stream URL not available');
-    return;
-  }
-  const iframe = document.getElementById('trailer');
-  iframe.src = url;
-  document.getElementById('modal').style.display = 'flex';
-}
-
-function closeTrailer() {
-  document.getElementById('modal').style.display = 'none';
-  document.getElementById('trailer').src = '';
-}
-
-function addToWatchlist(id){
-  if(!watchlist.includes(id)) watchlist.push(id);
-  localStorage.setItem('watchlist', JSON.stringify(watchlist));
-  alert('Added to Watchlist');
-}
-
-function showWatchlist(){
-  if(!watchlist.length){alert('Watchlist empty'); return;}
-  Promise.all(watchlist.map(id=>fetch(`https://api.jikan.moe/v4/anime/${id}`).then(res=>res.json())))
-    .then(results=>renderResults(results.map(r=>r.data)));
-}
-
-async function loadGenres(){
-  const res = await fetch('https://api.jikan.moe/v4/genres/anime');
-  const data = await res.json();
-  const bar=document.getElementById('genres');
-  data.data.forEach(g=>{
-    const btn=document.createElement('button');
-    btn.innerText=g.name;
-    btn.className='section-btn';
-    btn.onclick=()=>loadGenre(g.mal_id);
-    bar.appendChild(btn);
+  document.getElementById('close-trailer').addEventListener('click', () => {
+    document.getElementById('trailer-modal').style.display = 'none';
   });
-}
 
-async function loadGenre(id){
-  const res=await fetch(`https://api.jikan.moe/v4/anime?genres=${id}&sfw=true`);
-  const data=await res.json();
-  renderResults(data.data||[]);
-}
+  // Toggle wishlist
+  const wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+  function toggleWishlist(showId, heartIcon) {
+    const index = wishlist.indexOf(showId);
+    if (index === -1) {
+      wishlist.push(showId);
+      heartIcon.innerHTML = '❤️';
+    } else {
+      wishlist.splice(index, 1);
+      heartIcon.innerHTML = '🤍';
+    }
+    localStorage.setItem('wishlist', JSON.stringify(wishlist));
+  }
 
-// Load homepage
-loadSection('trending');
-loadGenres();
+  // Search filter
+  document.getElementById('search-input').addEventListener('input', () => {
+    const query = document.getElementById('search-input').value.toLowerCase();
+    document.querySelectorAll('.poster').forEach(p => {
+      const title = p.dataset.title.toLowerCase();
+      p.style.display = title.includes(query) ? 'block' : 'none';
+    });
+  });
 
-// Service Worker registration for offline caching
-if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('sw.js');
-}
+  // Install App
+  document.getElementById('install-btn').addEventListener('click', () => {
+    alert('Install feature coming soon');
+  });
+
+  // Profile Management
+  const profileIcon = document.getElementById('profile-icon');
+  profileIcon.addEventListener('click', () => {
+    document.getElementById('profile-modal').style.display = 'flex';
+  });
+
+  document.getElementById('sign-in-btn').addEventListener('click', () => {
+    const username = document.getElementById('username').value;
+    if (username) {
+      localStorage.setItem('user', username);
+      document.getElementById('profile-modal').style.display = 'none';
+      document.getElementById('sign-in-section').style.display = 'none';
+      document.getElementById('profile-actions').style.display = 'block';
+    }
+  });
+
+  document.getElementById('sign-out-btn').addEventListener('click', () => {
+    localStorage.removeItem('user');
+    document.getElementById('profile-modal').style.display = 'none';
+    document.getElementById('sign-in-section').style.display = 'block';
+    document.getElementById('profile-actions').style.display = 'none';
+  });
+
+  document.getElementById('clear-history').addEventListener('click', () => {
+    if (confirm('Clear watch history?')) {
+      localStorage.removeItem('history');
+    }
+  });
+
+  // Initialize
+  window.onload = () => {
+    loadShows(shows);
+    // Check login state
+    const user = localStorage.getItem('user');
+    if (user) {
+      document.getElementById('sign-in-section').style.display = 'none';
+      document.getElementById('profile-actions').style.display = 'block';
+    }
+  };
 </script>
+
+<!-- Service Worker registration -->
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').then(reg => {
+        console.log('SW registered', reg);
+      });
+    });
+  }
+</script>
+
 </body>
 </html>
