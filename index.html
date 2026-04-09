@@ -6,83 +6,74 @@
 <title>YmlAnime</title>
 
 <style>
-body { margin:0; font-family:sans-serif; background:#000; color:#fff; }
+body { margin:0; background:#000; color:#fff; font-family:sans-serif; }
 
 /* HEADER */
 header {
   display:flex;
   justify-content:space-between;
   align-items:center;
-  padding:1rem;
+  padding:10px;
   background:#111;
 }
-.logo { color:#00ff88; font-size:22px; font-weight:bold; }
-.search { padding:6px; border-radius:4px; border:none; width:200px; }
-.icons span { margin-left:15px; cursor:pointer; font-size:20px; }
+.logo { color:#00ff88; font-size:22px; }
+.search { padding:5px; border:none; border-radius:4px; width:200px; }
+
+.icons span {
+  margin-left:10px;
+  cursor:pointer;
+  font-size:18px;
+}
 
 /* HERO */
 .hero {
-  height:60vh;
+  height:50vh;
   background-size:cover;
-  background-position:center;
   display:flex;
   align-items:flex-end;
-  padding:2rem;
+  padding:20px;
 }
-.hero h1 { font-size:40px; margin:0; }
-.hero p { max-width:500px; }
 
 /* ROWS */
-.row { padding:1rem; }
-.row h2 { margin-bottom:10px; }
-.row-container {
+.row { padding:10px; }
+.row h2 { margin:5px 0; }
+.scroll {
   display:flex;
   overflow-x:auto;
   gap:10px;
 }
 
-/* CARDS */
+/* CARD */
 .card {
-  min-width:150px;
+  min-width:140px;
   position:relative;
   cursor:pointer;
-  transition:0.3s;
 }
-.card img {
-  width:100%;
-  border-radius:6px;
-}
-.card:hover {
-  transform:scale(1.1);
-}
+.card img { width:100%; border-radius:6px; }
 
-/* OVERLAY */
-.overlay {
-  position:absolute;
+/* BADGES */
+.badge { position:absolute; font-size:10px; padding:2px 4px; }
+.ep { top:5px; left:5px; background:#000; }
+.score { bottom:5px; left:5px; background:#00ff88; color:#000; }
+.age { bottom:5px; right:5px; background:red; }
+.subdub { top:5px; right:25px; background:blue; }
+
+.heart { position:absolute; top:5px; right:5px; }
+
+/* PLAYER */
+#player { display:none; padding:10px; }
+iframe { width:100%; height:300px; }
+
+/* MODAL */
+#modal {
+  display:none;
+  position:fixed;
   inset:0;
-  background:rgba(0,0,0,0.7);
-  opacity:0;
-  display:flex;
-  flex-direction:column;
+  background:rgba(0,0,0,0.8);
   justify-content:center;
   align-items:center;
-  transition:0.3s;
 }
-.card:hover .overlay { opacity:1; }
-
-.play {
-  background:#00ff88;
-  color:#000;
-  padding:5px 10px;
-  border-radius:4px;
-  margin-bottom:5px;
-}
-
-.heart {
-  position:absolute;
-  top:5px;
-  right:5px;
-}
+#modal iframe { width:80%; height:60%; }
 </style>
 </head>
 
@@ -93,112 +84,157 @@ header {
     <span class="logo">YmlAnime</span>
     <input id="search" class="search" placeholder="Search...">
   </div>
+
   <div class="icons">
     <span onclick="goHome()">🏠</span>
     <span onclick="showWishlist()">❤️</span>
-    <span onclick="alert('Genres soon')">🎭</span>
-    <span onclick="alert('Profile soon')">👤</span>
+    <span onclick="alert('Genres page')">🎭</span>
+    <span onclick="showProfile()">👤</span>
+    <span id="installBtn">⬇️</span>
   </div>
 </header>
 
-<!-- HERO -->
-<div class="hero" id="hero">
-  <div>
-    <h1 id="heroTitle"></h1>
-    <p id="heroDesc"></p>
-  </div>
+<div class="hero" id="hero"></div>
+
+<div id="content"></div>
+
+<div id="player">
+  <button onclick="goHome()">⬅ Back</button>
+  <h2 id="title"></h2>
+  <iframe id="video"></iframe>
+  <br>
+  <button onclick="nextEpisode()">Next Episode</button>
+  <button>Sub</button>
+  <button>Dub</button>
 </div>
 
-<!-- ROWS -->
-<div id="content"></div>
+<div id="modal">
+  <iframe id="trailer"></iframe>
+</div>
 
 <script>
 // DATA
 const anime = [
-  {id:1,title:'Attack on Titan',desc:'Humanity fights titans.',img:'https://cdn.myanimelist.net/images/anime/10/47347.jpg'},
-  {id:2,title:'Jujutsu Kaisen',desc:'Curses and sorcerers.',img:'https://cdn.myanimelist.net/images/anime/1171/109222.jpg'},
-  {id:3,title:'Spy x Family',desc:'Fake family mission.',img:'https://cdn.myanimelist.net/images/anime/1441/122795.jpg'},
-  {id:4,title:'Chainsaw Man',desc:'Devils and chaos.',img:'https://cdn.myanimelist.net/images/anime/1939/136859.jpg'}
+ {id:1,title:'AOT',ep:75,score:9.2,age:'R',img:'https://cdn.myanimelist.net/images/anime/10/47347.jpg'},
+ {id:2,title:'JJK',ep:24,score:8.7,age:'PG-13',img:'https://cdn.myanimelist.net/images/anime/1171/109222.jpg'}
 ];
 
 // STORAGE
 let wishlist = JSON.parse(localStorage.getItem('wishlist')||'[]');
+let history = JSON.parse(localStorage.getItem('history')||'[]');
+let user = localStorage.getItem('user');
 
-// HERO SET
+// HERO
 function setHero(a){
-  document.getElementById('hero').style.backgroundImage=`url(${a.img})`;
-  document.getElementById('heroTitle').innerText=a.title;
-  document.getElementById('heroDesc').innerText=a.desc;
+ document.getElementById('hero').style.backgroundImage=`url(${a.img})`;
 }
 setHero(anime[0]);
 
-// ROW RENDER
-function createRow(title,list){
-  const row=document.createElement('div');
-  row.className='row';
+// RENDER
+function createRow(name,list){
+ const row=document.createElement('div');
+ row.className='row';
+ row.innerHTML=`<h2>${name}</h2><div class="scroll"></div>`;
+ const sc=row.querySelector('.scroll');
 
-  row.innerHTML=`<h2>${title}</h2><div class="row-container"></div>`;
-  const container=row.querySelector('.row-container');
+ list.forEach(a=>{
+  const c=document.createElement('div');
+  c.className='card';
 
-  list.forEach(a=>{
-    const card=document.createElement('div');
-    card.className='card';
+  c.innerHTML=`
+    <img src="${a.img}">
+    <span class="badge ep">EP ${a.ep}</span>
+    <span class="badge score">⭐ ${a.score}</span>
+    <span class="badge age">${a.age}</span>
+    <span class="badge subdub">SUB/DUB</span>
+    <span class="heart">${wishlist.includes(a.id)?'💚':'🤍'}</span>
+  `;
 
-    card.innerHTML=`
-      <img src="${a.img}">
-      <div class="overlay">
-        <div class="play">▶ Play</div>
-        <div>${a.title}</div>
-      </div>
-      <span class="heart">${wishlist.includes(a.id)?'💚':'🤍'}</span>
-    `;
+  c.onclick=()=>openPlayer(a);
 
-    // click → hero update
-    card.onclick=()=>setHero(a);
+  c.querySelector('.heart').onclick=(e)=>{
+    e.stopPropagation();
+    if(wishlist.includes(a.id)) wishlist=wishlist.filter(i=>i!==a.id);
+    else wishlist.push(a.id);
+    localStorage.setItem('wishlist',JSON.stringify(wishlist));
+    load();
+  };
 
-    // wishlist
-    card.querySelector('.heart').onclick=(e)=>{
-      e.stopPropagation();
-      if(wishlist.includes(a.id)) wishlist=wishlist.filter(i=>i!==a.id);
-      else wishlist.push(a.id);
-      localStorage.setItem('wishlist',JSON.stringify(wishlist));
-      load();
-    };
+  sc.appendChild(c);
+ });
 
-    container.appendChild(card);
-  });
-
-  return row;
+ return row;
 }
 
-// LOAD PAGE
+// LOAD
 function load(){
-  const content=document.getElementById('content');
-  content.innerHTML='';
-  content.appendChild(createRow('Most Rated',anime));
-  content.appendChild(createRow('Trending',anime));
-  content.appendChild(createRow('Airing Now',anime));
-  content.appendChild(createRow('Upcoming',anime));
+ const content=document.getElementById('content');
+ content.innerHTML='';
+ content.appendChild(createRow('Continue Watching',history));
+ content.appendChild(createRow('Most Popular',anime));
+ content.appendChild(createRow('Trending',anime));
+ content.appendChild(createRow('Airing Now',anime));
+ content.appendChild(createRow('Top Rated',anime));
+ content.appendChild(createRow('Upcoming',anime));
 }
 load();
 
+// PLAYER
+function openPlayer(a){
+ document.getElementById('content').style.display='none';
+ document.getElementById('player').style.display='block';
+ document.getElementById('title').innerText=a.title;
+ document.getElementById('video').src="https://www.youtube.com/embed/dQw4w9WgXcQ";
+
+ history.push(a);
+ localStorage.setItem('history',JSON.stringify(history));
+}
+
+function nextEpisode(){ alert('Next episode'); }
+
 // NAV
-function goHome(){ load(); }
+function goHome(){
+ document.getElementById('player').style.display='none';
+ document.getElementById('content').style.display='block';
+ load();
+}
 
 function showWishlist(){
-  const content=document.getElementById('content');
-  content.innerHTML='';
-  content.appendChild(createRow('Wishlist',anime.filter(a=>wishlist.includes(a.id))));
+ const content=document.getElementById('content');
+ content.innerHTML='';
+ content.appendChild(createRow('Wishlist',anime.filter(a=>wishlist.includes(a.id))));
+}
+
+function showProfile(){
+ if(!user){
+   const name=prompt("Enter username");
+   localStorage.setItem('user',name);
+ } else {
+   if(confirm("Clear history?")){
+     history=[];
+     localStorage.setItem('history','[]');
+   }
+ }
 }
 
 // SEARCH
 document.getElementById('search').addEventListener('input',e=>{
-  const val=e.target.value.toLowerCase();
-  const filtered=anime.filter(a=>a.title.toLowerCase().includes(val));
-  const content=document.getElementById('content');
-  content.innerHTML='';
-  content.appendChild(createRow('Search Results',filtered));
+ const val=e.target.value.toLowerCase();
+ const filtered=anime.filter(a=>a.title.toLowerCase().includes(val));
+ const content=document.getElementById('content');
+ content.innerHTML='';
+ content.appendChild(createRow('Search',filtered));
 });
+
+// INSTALL
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt',(e)=>{
+ e.preventDefault();
+ deferredPrompt=e;
+});
+document.getElementById('installBtn').onclick=()=>{
+ if(deferredPrompt) deferredPrompt.prompt();
+};
 </script>
 
 </body>
