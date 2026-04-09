@@ -9,41 +9,97 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <style>
 body { margin:0; font-family:Arial; background:#0b0b0b; color:#fff; }
-header { position:fixed; top:0; width:100%; display:flex; justify-content:space-between; align-items:center; padding:10px 20px; background:linear-gradient(to bottom,#000,transparent); z-index:100; }
-.logo { font-size:24px; color:#00ff88; font-weight:bold; }
-.search { padding:6px 10px; border-radius:20px; border:none; background:#1a1a1a; color:#fff; width:40%; }
-.icons span { margin-left:15px; cursor:pointer; font-size:20px; }
-
-.hero { height:60vh; background-size:cover; background-position:center; display:flex; align-items:flex-end; padding:40px; }
-
-.row-container { padding:20px 0; }
-.row-title { font-weight:bold; margin-left:20px; margin-bottom:10px; font-size:18px; text-transform:uppercase; }
-.row-scroll { display:flex; overflow-x:auto; gap:12px; padding-left:20px; }
-
-.card { min-width:140px; position:relative; border-radius:10px; overflow:hidden; cursor:pointer; }
-.card img { width:100%; height:200px; object-fit:cover; border-radius:10px; }
-.card .overlay { position:absolute; inset:0; background:rgba(0,0,0,0.7); display:flex; align-items:center; justify-content:center; font-size:24px; opacity:0; transition:0.2s; }
-.card:hover .overlay { opacity:1; }
-iframe.preview { position:absolute; inset:0; width:100%; height:100%; display:none; }
-.card:hover iframe.preview { display:block; }
-
-.badge { position:absolute; font-size:11px; padding:2px 5px; color:#fff; border-radius:3px; font-weight:bold; }
-.ep { top:5px; left:5px; background:#000; }
-.score { bottom:5px; left:5px; background:#00ff88; color:#000; }
-.age { bottom:5px; right:5px; background:red; }
-.subdub { top:5px; right:30px; background:blue; }
-
-.heart { position:absolute; top:5px; right:5px; font-size:16px; }
-
-#player { display:none; padding:20px; }
-iframe#video { width:100%; height:400px; border:none; }
-#episodes { display:flex; flex-wrap:wrap; gap:5px; margin-top:10px; }
-.ep-btn { padding:5px 10px; background:#00ff88; color:#000; border:none; cursor:pointer; border-radius:3px; }
-</style>
-</head>
 <body>
 
-<header id="hero">
+    <div id="choiceOverlay" onclick="this.style.display='none'">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <img id="choiceImg" class="w-40 h-56 mx-auto rounded-2xl mb-6 object-cover shadow-2xl border-2 border-gray-800/50" />
+            <h3 id="choiceTitle" class="text-white font-black uppercase text-xs mb-8 leading-tight tracking-wide"></h3>
+            <div class="space-y-3">
+                <button id="choicePlay" class="btn-red"><i class="fa fa-play mr-2"></i> Start Streaming</button>
+                <button id="choiceWish" class="btn-red bg-gray-800 text-gray-400 hover:text-white">Add to Wishlist</button>
+                <button onclick="document.getElementById('choiceOverlay').style.display='none'" class="text-gray-600 font-bold text-[10px] uppercase mt-4 tracking-[0.2em] block w-full">Dismiss</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="trailerOverlay" onclick="closeTrailer()">
+        <div class="relative w-full max-w-5xl aspect-video bg-black rounded-3xl overflow-hidden mx-4 shadow-2xl border border-white/5">
+            <button onclick="closeTrailer()" class="absolute top-4 right-4 z-[6000] text-white bg-red-600 w-10 h-10 rounded-full font-black">✕</button>
+            <iframe id="trailerFrame" class="w-full h-full" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        </div>
+    </div>
+
+    <div id="confirmOverlay">
+        <div class="modal-box">
+            <div class="w-16 h-16 bg-red-600/20 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
+                <i class="fa fa-exclamation-triangle"></i>
+            </div>
+            <h3 class="text-white font-black uppercase text-xs mb-3">Hard Reset?</h3>
+            <p class="text-gray-500 text-[10px] mb-8 uppercase tracking-widest leading-loose">This will wipe your account sync, history, and wishlist permanently.</p>
+            <div class="flex gap-3">
+                <button onclick="confirmClearHistory()" class="btn-red flex-1">Reset</button>
+                <button onclick="document.getElementById('confirmOverlay').style.display='none'" class="btn-red flex-1 bg-gray-800">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <nav class="fixed top-0 w-full z-[2500] glass p-5">
+        <div class="container mx-auto flex items-center justify-between">
+            <h1 class="text-2xl font-black logo-text cursor-pointer tracking-tighter" onclick="showPage('home')">YMLSFLIX PRO</h1>
+            <div class="flex items-center gap-7">
+                <i onclick="showPage('home')" class="fa fa-home text-gray-400 hover:text-white cursor-pointer text-2xl transition"></i>
+                <i onclick="showPage('wishlist')" class="fa fa-heart text-gray-400 hover:text-red-500 cursor-pointer text-2xl transition"></i>
+                <i onclick="toggleDropdown('genreDrop')" class="fa fa-th-large text-gray-400 hover:text-white cursor-pointer text-xl transition"></i>
+                <i onclick="toggleDropdown('profileDrop')" class="fa fa-user-circle text-gray-400 hover:text-white cursor-pointer text-2xl transition"></i>
+            </div>
+        </div>
+        <div class="container mx-auto mt-6 px-1">
+            <div class="flex gap-3">
+                <div class="relative flex-1">
+                    <i class="fa fa-search absolute left-5 top-1/2 -translate-y-1/2 text-gray-500"></i>
+                    <input type="text" id="searchBar" class="bg-[#111827] border border-[#1f2937] text-white pl-14 pr-5 py-4 rounded-2xl w-full outline-none focus:border-red-500 transition-all" placeholder="Search for anime, movies..." oninput="handleSearch(this.value)" />
+                </div>
+                <button id="installBtn" onclick="triggerInstall()" class="hidden bg-indigo-600 text-[10px] font-black px-6 rounded-2xl uppercase tracking-widest hover:bg-indigo-500">Install</button>
+            </div>
+            <div class="flex gap-3 mt-5 overflow-x-auto no-scrollbar pb-1">
+                <div id="chip-TV" onclick="fetchByFormat('TV')" class="cat-chip">TV Series</div>
+                <div id="chip-MOVIE" onclick="fetchByFormat('MOVIE')" class="cat-chip">Movies</div>
+                <div id="chip-OVA" onclick="fetchByFormat('OVA')" class="cat-chip">OVA</div>
+                <div id="chip-SPECIAL" onclick="fetchByFormat('SPECIAL')" class="cat-chip">Special</div>
+            </div>
+        </div>
+
+        <div id="genreDrop" class="dropdown-content">
+            <div class="flex mb-6 gap-6">
+                <button onclick="switchTab('genres')" id="tab-gen" class="flex-1 pb-3 font-black text-[11px] uppercase border-b-2 border-red-600 text-white">Categories</button>
+                <button onclick="switchTab('years')" id="tab-year" class="flex-1 pb-3 font-black text-[11px] uppercase text-gray-500">Year</button>
+            </div>
+            <div id="genreList" class="grid grid-cols-3 gap-3 max-h-72 overflow-y-auto pr-2"></div>
+            <div id="yearList" class="grid grid-cols-3 gap-3 max-h-72 overflow-y-auto pr-2 hidden"></div>
+        </div>
+
+        <div id="profileDrop" class="dropdown-content">
+            <div id="authBox">
+                <h3 class="text-white font-black text-[10px] uppercase mb-6 text-center tracking-[0.3em]">Premium Sync</h3>
+                <input type="text" id="authEmail" placeholder="Enter Username" class="bg-[#111827] p-4 rounded-xl w-full mb-3 border border-[#1f2937] outline-none focus:border-accent" />
+                <input type="password" id="authPass" placeholder="Enter Password" class="bg-[#111827] p-4 rounded-xl w-full mb-6 border border-[#1f2937] outline-none focus:border-accent" />
+                <div class="flex gap-3">
+                    <button onclick="handleAuth('login')" class="btn-red flex-1">Login</button>
+                    <button onclick="handleAuth('signup')" class="btn-red flex-1 bg-gray-700">Register</button>
+                </div>
+            </div>
+            <div id="userBox" class="hidden text-center">
+                <div class="w-20 h-20 bg-gradient-to-tr from-red-600 to-indigo-600 rounded-full mx-auto mb-4 flex items-center justify-center text-3xl font-black shadow-2xl">Y</div>
+                <h4 id="userDisplay" class="font-black text-white uppercase text-base mb-6 tracking-wider"></h4>
+                <button onclick="document.getElementById('confirmOverlay').style.display='flex'" class="btn-red bg-gray-900 mb-3 border border-red-900/40 text-red-500">Wipe All Cache</button>
+                <button onclick="handleLogout()" class="btn-red bg-red-950/30 text-red-500">Sign Out</button>
+            </div>
+        </div>
+    </nav>
+
+    <div id="page-home" class="page-view active-view pt-56">
+        <header id="hero">
             <div class="hero-grad"></div>
             <div class="container mx-auto px-8 relative z-10">
                 <div class="flex items-center gap-3 mb-4">
