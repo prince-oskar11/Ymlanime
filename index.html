@@ -144,7 +144,6 @@
     margin: 5px 0;
     padding: 5px;
   }
-
 </style>
 </head>
 <body>
@@ -161,7 +160,7 @@
 </header>
 
 <main id="content">
-  <!-- Posters will be dynamically inserted here -->
+  <!-- Shows will be loaded here dynamically -->
 </main>
 
 <!-- Trailer Modal -->
@@ -226,6 +225,18 @@
       mostRated: false,
       backgroundUrl: "https://images.alphacoders.com/543/54321.jpg"
     },
+    {
+      id: 3,
+      title: "One Piece",
+      episodes: 1000,
+      rating: 9.2,
+      age: "13+",
+      subDub: "Dub",
+      trailer: "https://www.w3schools.com/html/mov_bbb.mp4",
+      streams: ["Filemoon", "DoodStream"],
+      mostRated: false,
+      backgroundUrl: "https://images.alphacoders.com/234/23456.jpg"
+    }
     // Add more shows as needed
   ];
 
@@ -233,7 +244,7 @@
 
   const content = document.getElementById('content');
 
-  // Load shows
+  // Load shows on page load
   function loadShows(showsToLoad) {
     content.innerHTML = '';
     showsToLoad.forEach(show => {
@@ -272,7 +283,9 @@
       // Heart icon
       const heart = document.createElement('div');
       heart.className = 'heart';
-      heart.innerHTML = '🤍';
+      // Check if in wishlist
+      const wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+      heart.innerHTML = wishlist.includes(show.id) ? '❤️' : '🤍';
       heart.title = 'Add to Wishlist';
       posterDiv.appendChild(heart);
 
@@ -293,7 +306,6 @@
 
       content.appendChild(posterDiv);
     });
-    // Change background
     changeBackground(showsToLoad);
   }
 
@@ -304,15 +316,13 @@
     document.body.style.backgroundSize = 'cover';
   }
 
-  // Show options modal (simplified)
   function showPosterOptions(show) {
-    const options = confirm(`Options for ${show.title}:\nClick OK to Play Trailer\nCancel to do nothing.`);
-    if (options) {
+    const choice = confirm(`Options for ${show.title}:\nClick OK to Play Trailer\nCancel to do nothing.`);
+    if (choice) {
       playTrailer(show.trailer);
     }
   }
 
-  // Play trailer
   function playTrailer(src) {
     const modal = document.getElementById('trailer-modal');
     const video = document.getElementById('video-player');
@@ -324,21 +334,20 @@
     document.getElementById('trailer-modal').style.display = 'none';
   });
 
-  // Toggle wishlist
-  const wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+  // Wishlist handling
   function toggleWishlist(showId, heartIcon) {
-    const index = wishlist.indexOf(showId);
-    if (index === -1) {
+    let wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+    if (wishlist.includes(showId)) {
+      wishlist = wishlist.filter(id => id !== showId);
+      heartIcon.innerHTML = '🤍';
+    } else {
       wishlist.push(showId);
       heartIcon.innerHTML = '❤️';
-    } else {
-      wishlist.splice(index, 1);
-      heartIcon.innerHTML = '🤍';
     }
     localStorage.setItem('wishlist', JSON.stringify(wishlist));
   }
 
-  // Search filter
+  // Search filtering
   document.getElementById('search-input').addEventListener('input', () => {
     const query = document.getElementById('search-input').value.toLowerCase();
     document.querySelectorAll('.poster').forEach(p => {
@@ -347,14 +356,13 @@
     });
   });
 
-  // Install App
+  // Install as app (placeholder)
   document.getElementById('install-btn').addEventListener('click', () => {
     alert('Install feature coming soon');
   });
 
-  // Profile Management
-  const profileIcon = document.getElementById('profile-icon');
-  profileIcon.addEventListener('click', () => {
+  // Profile
+  document.getElementById('profile-icon').addEventListener('click', () => {
     document.getElementById('profile-modal').style.display = 'flex';
   });
 
@@ -381,10 +389,9 @@
     }
   });
 
-  // Initialize
+  // Initialize page with shows
   window.onload = () => {
     loadShows(shows);
-    // Check login state
     const user = localStorage.getItem('user');
     if (user) {
       document.getElementById('sign-in-section').style.display = 'none';
