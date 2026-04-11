@@ -422,7 +422,8 @@
 
         // GRID RENDERING LOGIC
         // Function to fetch ratings from Jikan API using anime title
-  async function fetchRatingsForAnime(animeList) {
+  // 1. Fetch ratings for a list of anime
+async function fetchRatingsForAnime(animeList) {
   const fetchPromises = animeList.map(async (anime) => {
     try {
       const searchTitle = encodeURIComponent(anime.title.english || anime.title.romaji);
@@ -440,8 +441,49 @@
       anime.rating = 'N/A';
     }
   });
-
   await Promise.all(fetchPromises);
+}
+
+// 2. Load main lists, fetch ratings, then render
+async function loadHome() {
+  // Fetch trending list
+  const trendingResponse = await fetch(API, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ query: `query{Page(perPage:20){media(sort:TRENDING_DESC, type:ANIME){id title{english romaji} coverImage{large} episodes trailer{id site}}}}` })
+  });
+  const trendingData = await trendingResponse.json();
+
+  // Fetch popular list
+  const popularResponse = await fetch(API, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ query: `query{Page(perPage:20){media(sort=POPULARITY_DESC, type:ANIME){id title{english romaji} coverImage{large} episodes trailer{id site}}}}` })
+  });
+  const popularData = await popularResponse.json();
+
+  // Fetch top-rated list
+  const topRatedResponse = await fetch(API, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ query: `query{Page(perPage:20){media(sort=SCORE_DESC, type:ANIME){id title{english romaji} coverImage{large} episodes trailer{id site}}}}` })
+  });
+  const topRatedData = await topRatedResponse.json();
+
+  // Extract media arrays
+  const trendingList = trendingData.data.Page.media;
+  const popularList = popularData.data.Page.media;
+  const ratedList = topRatedData.data.Page.media;
+
+  // Fetch ratings for each list
+  await fetchRatingsForAnime(trendingList);
+  await fetchRatingsForAnime(popularList);
+  await fetchRatingsForAnime(ratedList);
+
+  // Render each list
+  render(trendingList, 'trendingGrid');
+  render(popularList, 'popularGrid');
+  render(ratedList, 'ratedGrid');
 }
 
 // Function to load your anime data, fetch ratings, then render
