@@ -117,12 +117,20 @@
     <h2 class="text-white text-xl font-bold mb-4 uppercase border-l-4 border-red-600 pl-2">Upcoming</h2>
     <div class="flex space-x-4 overflow-x-auto pb-4 hide-scrollbar" id="upcomingGrid"></div>
   </section>
+<main class="container mx-auto p-6 space-y-20">
+            <section id="continueSection" class="hidden">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-[11px] font-black uppercase text-red-500 tracking-[0.4em]">Jump Back In</h2>
+                    <span class="text-[9px] text-gray-600 font-bold uppercase">Auto-Saved</span>
+                </div>
+                <div id="continueGrid" class="flex gap-6 overflow-x-auto no-scrollbar pb-3"></div>
+            </section>
+            <section class="mb-12"><h2 class="text-[11px] font-black mb-4 uppercase text-orange-500 tracking-[0.2em]">Trending Now</h2><div id="trendingGrid" class="flex gap-4 overflow-x-auto no-scrollbar"></div></section>
+            <section class="mb-12"><h2 class="text-[11px] font-black mb-4 uppercase text-yellow-500 tracking-[0.2em]">Top Rated</h2><div id="ratedGrid" class="flex gap-4 overflow-x-auto no-scrollbar"></div></section>
+            <section class="mb-12"><h2 class="text-[11px] font-black mb-4 uppercase text-blue-500 tracking-[0.2em]">Now Playing</h2><div id="airingGrid" class="flex gap-4 overflow-x-auto no-scrollbar"></div></section>
+            <section class="mb-12"><h2 class="text-[11px] font-black mb-4 uppercase text-purple-500 tracking-[0.2em]">Most Popular</h2><div id="popularGrid" class="flex gap-4 overflow-x-auto no-scrollbar"></div></section>
+            <section class="mb-12"><h2 class="text-[11px] font-black mb-4 uppercase text-green-500 tracking-[0.2em]">Upcoming</h2><div id="upcomingGrid" class="flex gap-4 overflow-x-auto no-scrollbar"></div></section>
 </main>
-
-<!-- Hidden overlays and modals (unchanged, kept for functionality) -->
-<!-- ... (Your existing overlays and modals code) -->
-
-<!-- Scripts -->
 <script>
   // Simplified example: replace your fetch and render logic with new style
 
