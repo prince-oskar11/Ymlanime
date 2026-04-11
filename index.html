@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>YmlAnime | Netflix Style</title>
+<title>YMLAnime | Netflix Style</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet" />
 <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet" />
@@ -45,7 +45,7 @@
 
 <!-- Header -->
 <header class="fixed top-0 w-full bg-black bg-opacity-80 z-50 px-8 py-4 flex items-center justify-between backdrop-blur-lg">
-  <h1 class="text-3xl font-bold text-red-600 cursor-pointer" onclick="showPage('home')">YMLSFLIX</h1>
+  <h1 class="text-3xl font-bold text-red-600 cursor-pointer" onclick="showPage('home')">YMLAnime</h1>
   <div class="flex items-center space-x-4">
     <button class="text-white focus:outline-none" onclick="showPage('home')"><i class="fa fa-home text-xl"></i></button>
     <button class="text-white focus:outline-none" onclick="showPage('wishlist')"><i class="fa fa-heart text-xl"></i></button>
@@ -72,42 +72,81 @@
 
   <!-- Content Sections -->
   <section class="mt-8 px-4">
-    <!-- Example row: Top Rated -->
+    <!-- Top Rated -->
     <h2 class="text-white text-xl font-semibold mb-4 border-l-4 border-red-600 pl-2">Top Rated</h2>
     <div class="flex space-x-4 overflow-x-auto hide-scrollbar pb-4">
       <!-- Example cards -->
-      <div class="w-48 flex-shrink-0 cursor-pointer card rounded-lg overflow-hidden bg-gray-800" onclick="showOverlay('Anime Title 1', 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80')">
+      <div class="w-48 flex-shrink-0 cursor-pointer card rounded-lg overflow-hidden bg-gray-800 relative" onclick="showOverlay('Anime Title 1', 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80')">
         <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Anime 1" class="w-full h-60 object-cover" />
         <div class="p-2 text-white text-sm font-semibold">Anime Title 1</div>
-        <div class="rating-badge absolute top-2 left-2 bg-red-600 px-2 py-1 text-xs font-bold rounded">8.9</div>
+        <div class="absolute top-2 left-2 bg-red-600 px-2 py-1 text-xs font-bold rounded">8.9</div>
       </div>
-      <!-- Repeat more cards as needed -->
+      <!-- Repeat more cards here -->
     </div>
+
+    <!-- Most Popular -->
+    <h2 class="text-white text-xl font-semibold mb-4 border-l-4 border-red-600 pl-2 mt-8">Most Popular</h2>
+    <div class="flex space-x-4 overflow-x-auto hide-scrollbar pb-4">
+      <!-- Example cards -->
+      <div class="w-48 flex-shrink-0 cursor-pointer card rounded-lg overflow-hidden bg-gray-800 relative" onclick="showOverlay('Anime Title 2', 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80')">
+        <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Anime 2" class="w-full h-60 object-cover" />
+        <div class="p-2 text-white text-sm font-semibold">Anime Title 2</div>
+        <div class="absolute top-2 left-2 bg-red-600 px-2 py-1 text-xs font-bold rounded">9.2</div>
+      </div>
+    </div>
+
+    <!-- Now Playing -->
+    <h2 class="text-white text-xl font-semibold mb-4 border-l-4 border-red-600 pl-2 mt-8">Now Playing</h2>
+    <div class="flex space-x-4 overflow-x-auto hide-scrollbar pb-4">
+      <!-- Example cards -->
+      <div class="w-48 flex-shrink-0 cursor-pointer card rounded-lg overflow-hidden bg-gray-800 relative" onclick="showOverlay('Anime Title 3', 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80')">
+        <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Anime 3" class="w-full h-60 object-cover" />
+        <div class="p-2 text-white text-sm font-semibold">Anime Title 3</div>
+        <div class="absolute top-2 left-2 bg-red-600 px-2 py-1 text-xs font-bold rounded">7.8</div>
+      </div>
+    </div>
+
+    <!-- Trending -->
+    <h2 class="text-white text-xl font-semibold mb-4 border-l-4 border-red-600 pl-2 mt-8">Trending</h2>
+    <div class="flex space-x-4 overflow-x-auto hide-scrollbar pb-4">
+      <!-- Example cards -->
+      <div class="w-48 flex-shrink-0 cursor-pointer card rounded-lg overflow-hidden bg-gray-800 relative" onclick="showOverlay('Anime Title 4', 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80')">
+        <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Anime 4" class="w-full h-60 object-cover" />
+        <div class="p-2 text-white text-sm font-semibold">Anime Title 4</div>
+        <div class="absolute top-2 left-2 bg-red-600 px-2 py-1 text-xs font-bold rounded">8.5</div>
+      </div>
+    </div>
+
+    <!-- Upcoming -->
+    <h2 class="text-white text-xl font-semibold mb-4 border-l-4 border-red-600 pl-2 mt-8">Upcoming</h2>
+    <div class="flex space-x-4 overflow-x-auto hide-scrollbar pb-4">
+      <!-- Example cards -->
+      <div class="w-48 flex-shrink-0 cursor-pointer card rounded-lg overflow-hidden bg-gray-800 relative" onclick="showOverlay('Anime Title 5', 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80')">
+        <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Anime 5" class="w-full h-60 object-cover" />
+        <div class="p-2 text-white text-sm font-semibold">Anime Title 5</div>
+        <div class="absolute top-2 left-2 bg-red-600 px-2 py-1 text-xs font-bold rounded">Coming Soon</div>
+      </div>
+    </div>
+
   </section>
-
-  <!-- Repeat similar sections for Now Playing, Popular, Upcoming -->
-  <!-- ... -->
-
 </div>
 
-<!-- Overlay for Details / Trailer -->
 <div id="overlay" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 hidden">
-  <div class="bg-gray-900 rounded-lg max-w-4xl w-full mx-4 p-4 relative overflow-hidden">
-    <button class="absolute top-2 right-2 text-white text-xl" onclick="closeOverlay()">✕</button>
-    <div class="flex flex-col md:flex-row gap-4">
-      <img id="overlayImage" src="" alt="" class="w-full md:w-1/2 h-64 object-cover rounded-lg" />
-      <div class="flex-1 text-white">
-        <h3 class="text-2xl mb-4" id="overlayTitle">Anime Title</h3>
-        <p id="overlayDescription">Description of the anime goes here...</p>
-        <div class="mt-4 flex space-x-4">
-          <button class="btn-netflix" onclick="startStreaming()">Play</button>
-          <button class="btn-netflix" onclick="showTrailer()">Trailer</button>
+    <div class="bg-gray-900 rounded-lg max-w-4xl w-full mx-4 p-4 relative overflow-hidden">
+      <button class="absolute top-2 right-2 text-white text-xl" onclick="closeOverlay()">✕</button>
+      <div class="flex flex-col md:flex-row gap-4">
+        <img id="overlayImage" src="" alt="" class="w-full md:w-1/2 h-64 object-cover rounded-lg" />
+        <div class="flex-1 text-white">
+          <h3 class="text-2xl mb-4" id="overlayTitle">Anime Title</h3>
+          <p id="overlayDescription">Description of the anime goes here...</p>
+          <div class="mt-4 flex flex-col md:flex-row gap-4">
+            <button class="btn-netflix" onclick="startStreaming()">Play</button>
+            <button class="btn-netflix" onclick="showTrailer()">Watch Trailer</button>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div>
-
 <!-- Wishlist Page -->
 <div id="page-wishlist" class="hidden px-4 pt-20">
   <h2 class="text-white text-2xl mb-4 border-l-4 border-red-600 pl-2">My Wishlist</h2>
@@ -121,6 +160,18 @@
   function showPage(page) {
     document.querySelectorAll('.page-view').forEach(p => p.classList.add('hidden'));
     document.getElementById('page-' + page).classList.remove('hidden');
+  }
+
+  // Show trailer in modal
+  function showTrailer() {
+    const trailerUrl = "https://www.youtube.com/embed/dQw4w9WgXcQ"; // Replace with your trailer URL
+    document.getElementById('trailerVideo').src = trailerUrl + "?autoplay=1"; // autoplay
+    document.getElementById('trailerModal').classList.remove('hidden');
+  }
+
+  function closeTrailer() {
+    document.getElementById('trailerModal').classList.add('hidden');
+    document.getElementById('trailerVideo').src = ""; // Stop video
   }
 
   function showOverlay(title, imageUrl) {
@@ -145,8 +196,6 @@
     const el = document.getElementById(id);
     el.classList.toggle('hidden');
   }
-
-  // Additional functions to load content, handle search, etc.
 </script>
 
 </body>
